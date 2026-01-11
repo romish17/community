@@ -32,6 +32,17 @@ async function ensureSchema() {
       UNIQUE KEY uniq_category_user (user_id, name)
     )`
   );
+  await pool.query(
+    `CREATE TABLE IF NOT EXISTS favorites (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      user_id INT NOT NULL,
+      category_id INT DEFAULT NULL,
+      title VARCHAR(160) NOT NULL,
+      url VARCHAR(500) NOT NULL,
+      description TEXT NULL,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )`
+  );
   const [columns] = await pool.query(
     `SELECT COLUMN_NAME
      FROM INFORMATION_SCHEMA.COLUMNS
@@ -152,7 +163,16 @@ app.get("/dashboard", requireAuth, async (req, res) => {
     "SELECT id, name FROM categories WHERE user_id = ? ORDER BY name ASC",
     [req.session.userId]
   );
-  res.render("dashboard", { cards, categories });
+  const [favorites] = await pool.query(
+    `SELECT favorites.id, favorites.title, favorites.url, favorites.description, favorites.created_at,
+      categories.id AS category_id, categories.name AS category_name
+     FROM favorites
+     LEFT JOIN categories ON favorites.category_id = categories.id
+     WHERE favorites.user_id = ?
+     ORDER BY favorites.created_at DESC`,
+    [req.session.userId]
+  );
+  res.render("dashboard", { cards, categories, favorites });
 });
 
 app.post("/cards", requireAuth, async (req, res) => {
@@ -196,6 +216,36 @@ app.post("/categories", requireAuth, async (req, res) => {
     req.session.userId,
     name,
   ]);
+
+  return res.redirect("/dashboard");
+});
+
+app.post("/favorites", requireAuth, async (req, res) => {
+  const { title, url, description, categoryId } = req.body;
+  if (!title || !url) {
+    return res.redirect("/dashboard");
+  }
+
+  const pool = getPool();
+  await pool.query(
+    "INSERT INTO favorites (user_id, category_id, title, url, description) VALUES (?, ?, ?, ?, ?)",
+    [req.session.userId, categoryId || null, title, url, description || null]
+  );
+
+  return res.redirect("/dashboard");
+});
+
+app.post("/favorites/:id", requireAuth, async (req, res) => {
+  const { title, url, description, categoryId } = req.body;
+  if (!title || !url) {
+    return res.redirect("/dashboard");
+  }
+
+  const pool = getPool();
+  await pool.query(
+    "UPDATE favorites SET title = ?, url = ?, description = ?, category_id = ? WHERE id = ? AND user_id = ?",
+    [title, url, description || null, categoryId || null, req.params.id, req.session.userId]
+  );
 
   return res.redirect("/dashboard");
 });

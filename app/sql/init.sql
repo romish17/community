@@ -35,3 +35,15 @@ CREATE TABLE IF NOT EXISTS cards (
   CONSTRAINT fk_cards_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
   CONSTRAINT fk_cards_category FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL
 );
+
+CREATE TABLE IF NOT EXISTS favorites (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  category_id INT DEFAULT NULL,
+  title VARCHAR(160) NOT NULL,
+  url VARCHAR(500) NOT NULL,
+  description TEXT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_favorites_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  CONSTRAINT fk_favorites_category FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL
+);
