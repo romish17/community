@@ -1,0 +1,75 @@
+<%- include('partials/head', { title: 'Connexion' }) %>
+<div class="min-h-screen flex items-center justify-center px-4 py-12">
+  <div class="auth-grid w-full max-w-5xl">
+    <div class="glass rounded-3xl p-8 lg:p-10 soft-shadow">
+      <span class="inline-flex items-center gap-2 text-xs uppercase tracking-[0.4em] text-sky-200">
+        Community
+      </span>
+      <h1 class="mt-6 text-3xl md:text-4xl font-semibold leading-tight">
+        Un espace clair pour suivre vos idées et vos cards.
+      </h1>
+      <p class="mt-4 text-slate-200/80">
+        Organisez vos contenus, partagez-les avec votre équipe et gardez le cap sur vos projets.
+      </p>
+      <div class="mt-6 flex flex-wrap gap-3">
+        <span class="badge-outline rounded-full px-3 py-1 text-xs text-slate-200">MySQL</span>
+        <span class="badge-outline rounded-full px-3 py-1 text-xs text-slate-200">Docker</span>
+        <span class="badge-outline rounded-full px-3 py-1 text-xs text-slate-200">Express</span>
+      </div>
+      <div class="mt-10 flex items-center gap-4 text-sm text-slate-300">
+        <span class="h-8 w-8 rounded-full bg-sky-500/30"></span>
+        <div>
+          <p class="font-medium text-white">Activité en temps réel</p>
+          <p class="text-slate-300/80">Toutes vos cards synchronisées.</p>
+        </div>
+      </div>
+    </div>
+    <div class="panel rounded-3xl p-8 lg:p-10 soft-shadow">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-2xl font-semibold">Connexion</h2>
+          <p class="mt-2 text-sm text-slate-300">Ravi de vous revoir.</p>
+        </div>
+        <span class="badge-outline rounded-full px-3 py-1 text-xs text-slate-200">Accès sécurisé</span>
+      </div>
+      <% if (error) { %>
+      <div class="mt-4 rounded-2xl border border-rose-500/40 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
+        <%= error %>
+      </div>
+      <% } %>
+      <form method="post" action="/login" class="mt-6 space-y-4">
+        <label class="block text-sm">
+          <span class="text-slate-300">Email</span>
+          <input
+            type="email"
+            name="email"
+            class="mt-2 w-full rounded-2xl border border-slate-700 bg-slate-900/70 px-4 py-3 text-sm text-slate-100 placeholder:text-slate-500 focus:border-sky-400 focus:outline-none"
+            placeholder="vous@email.com"
+            required
+          />
+        </label>
+        <label class="block text-sm">
+          <span class="text-slate-300">Mot de passe</span>
+          <input
+            type="password"
+            name="password"
+            class="mt-2 w-full rounded-2xl border border-slate-700 bg-slate-900/70 px-4 py-3 text-sm text-slate-100 placeholder:text-slate-500 focus:border-sky-400 focus:outline-none"
+            placeholder="••••••••"
+            required
+          />
+        </label>
+        <button
+          class="w-full rounded-2xl bg-sky-500 px-4 py-3 text-sm font-semibold text-white transition hover:bg-sky-400"
+          type="submit"
+        >
+          Se connecter
+        </button>
+      </form>
+      <p class="mt-6 text-sm text-slate-300">
+        Pas encore de compte ?
+        <a class="text-sky-300 hover:text-sky-200" href="/register">Créer un compte</a>.
+      </p>
+    </div>
+  </div>
+</div>
+<%- include('partials/footer') %>
