@@ -32,9 +32,16 @@ async function ensureSchema() {
       UNIQUE KEY uniq_category_user (user_id, name)
     )`
   );
-  await pool.query(
-    "ALTER TABLE cards ADD COLUMN IF NOT EXISTS category_id INT DEFAULT NULL"
+  const [columns] = await pool.query(
+    `SELECT COLUMN_NAME
+     FROM INFORMATION_SCHEMA.COLUMNS
+     WHERE TABLE_SCHEMA = DATABASE()
+       AND TABLE_NAME = 'cards'
+       AND COLUMN_NAME = 'category_id'`
   );
+  if (columns.length === 0) {
+    await pool.query("ALTER TABLE cards ADD COLUMN category_id INT DEFAULT NULL");
+  }
   await pool.query(
     `INSERT INTO categories (user_id, name)
      SELECT u.id, 'Général'
