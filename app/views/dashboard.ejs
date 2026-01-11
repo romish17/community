@@ -1,0 +1,61 @@
+<%- include('partials/head', { title: 'Dashboard' }) %>
+<div class="navbar bg-base-100 shadow">
+  <div class="flex-1 px-4">
+    <span class="text-xl font-bold">Community Dashboard</span>
+  </div>
+  <div class="flex-none px-4">
+    <form method="post" action="/logout">
+      <button class="btn btn-ghost" type="submit">Déconnexion</button>
+    </form>
+  </div>
+</div>
+
+<main class="max-w-5xl mx-auto px-4 py-10 space-y-8">
+  <section class="card bg-base-100 shadow-xl">
+    <div class="card-body">
+      <h2 class="card-title">Créer une nouvelle card</h2>
+      <form method="post" action="/cards" class="grid gap-4 md:grid-cols-2">
+        <label class="form-control md:col-span-1">
+          <div class="label">
+            <span class="label-text">Titre</span>
+          </div>
+          <input type="text" name="title" class="input input-bordered" required />
+        </label>
+        <label class="form-control md:col-span-2">
+          <div class="label">
+            <span class="label-text">Contenu</span>
+          </div>
+          <textarea name="content" class="textarea textarea-bordered" rows="4" required></textarea>
+        </label>
+        <div class="md:col-span-2">
+          <button class="btn btn-primary" type="submit">Ajouter</button>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <section>
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-2xl font-bold">Mes cards</h2>
+      <span class="badge badge-outline"><%= cards.length %> cards</span>
+    </div>
+    <% if (cards.length === 0) { %>
+      <div class="alert">
+        <span>Aucune card pour le moment. Ajoutez-en une !</span>
+      </div>
+    <% } else { %>
+      <div class="grid gap-6 md:grid-cols-2">
+        <% cards.forEach((card) => { %>
+          <div class="card bg-base-100 shadow">
+            <div class="card-body">
+              <h3 class="card-title"><%= card.title %></h3>
+              <p class="text-base-content/80"><%= card.content %></p>
+              <p class="text-xs text-base-content/50">Créé le <%= new Date(card.created_at).toLocaleString('fr-FR') %></p>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+    <% } %>
+  </section>
+</main>
+<%- include('partials/footer') %>
