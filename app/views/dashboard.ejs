@@ -1,19 +1,27 @@
 <%- include('partials/head', { title: 'Dashboard' }) %>
-<div class="navbar bg-base-100 shadow">
-  <div class="flex-1 px-4">
-    <span class="text-xl font-bold">Community Dashboard</span>
+<div class="navbar bg-base-100/80 backdrop-blur shadow-sm sticky top-0 z-10">
+  <div class="flex-1 px-6">
+    <div>
+      <p class="text-sm uppercase tracking-[0.2em] text-primary/60 section-title">Community</p>
+      <span class="text-2xl font-bold">Dashboard</span>
+    </div>
   </div>
-  <div class="flex-none px-4">
+  <div class="flex-none px-6 gap-3">
+    <button class="btn btn-ghost btn-sm">Support</button>
     <form method="post" action="/logout">
-      <button class="btn btn-ghost" type="submit">Déconnexion</button>
+      <button class="btn btn-outline btn-sm" type="submit">Déconnexion</button>
     </form>
   </div>
 </div>
 
-<main class="max-w-5xl mx-auto px-4 py-10 space-y-8">
-  <section class="card bg-base-100 shadow-xl">
-    <div class="card-body">
-      <h2 class="card-title">Créer une nouvelle card</h2>
+<main class="max-w-6xl mx-auto px-6 py-10 space-y-10">
+  <section class="grid gap-6 lg:grid-cols-[1.4fr_0.6fr]">
+    <div class="card bg-base-100 shadow-xl card-highlight">
+      <div class="card-body">
+        <h2 class="card-title">Créer une nouvelle card</h2>
+        <p class="text-base-content/70">
+          Capturez une idée, un brief ou une note d'équipe. Chaque card est sauvegardée dans MySQL.
+        </p>
       <form method="post" action="/cards" class="grid gap-4 md:grid-cols-2">
         <label class="form-control md:col-span-1">
           <div class="label">
@@ -32,11 +40,32 @@
         </div>
       </form>
     </div>
+    </div>
+    <div class="card bg-base-100 shadow-xl stat-surface">
+      <div class="card-body">
+        <h3 class="text-lg font-semibold">Vue rapide</h3>
+        <div class="stats stats-vertical bg-transparent">
+          <div class="stat">
+            <div class="stat-title">Cards totales</div>
+            <div class="stat-value text-primary"><%= cards.length %></div>
+            <div class="stat-desc">Dernière mise à jour en temps réel</div>
+          </div>
+          <div class="stat">
+            <div class="stat-title">Prochaine étape</div>
+            <div class="stat-value text-base-content text-xl">Publier</div>
+            <div class="stat-desc">Partagez vos idées en équipe</div>
+          </div>
+        </div>
+      </div>
+    </div>
   </section>
 
   <section>
     <div class="flex items-center justify-between mb-4">
-      <h2 class="text-2xl font-bold">Mes cards</h2>
+      <div>
+        <p class="text-sm uppercase tracking-[0.2em] text-primary/60 section-title">Mes cards</p>
+        <h2 class="text-2xl font-bold">Idées récentes</h2>
+      </div>
       <span class="badge badge-outline"><%= cards.length %> cards</span>
     </div>
     <% if (cards.length === 0) { %>
@@ -46,7 +75,7 @@
     <% } else { %>
       <div class="grid gap-6 md:grid-cols-2">
         <% cards.forEach((card) => { %>
-          <div class="card bg-base-100 shadow">
+          <div class="card bg-base-100 shadow card-highlight">
             <div class="card-body">
               <h3 class="card-title"><%= card.title %></h3>
               <p class="text-base-content/80"><%= card.content %></p>

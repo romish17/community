@@ -1,9 +1,10 @@
 <%- include('partials/head', { title: 'Créer un compte' }) %>
-<div class="min-h-screen flex items-center justify-center px-4">
-  <div class="card w-full max-w-md bg-base-100 shadow-xl">
-    <div class="card-body">
-      <h1 class="text-2xl font-bold">Créer un compte</h1>
-      <p class="text-base-content/70">Accédez au dashboard DaisyUI.</p>
+<div class="min-h-screen flex items-center justify-center px-4 py-10">
+  <div class="grid w-full max-w-4xl gap-6 lg:grid-cols-[0.9fr_1.1fr]">
+    <div class="card glass-panel shadow-xl">
+      <div class="card-body">
+        <h1 class="text-2xl font-bold">Créer un compte</h1>
+        <p class="text-base-content/70">Accédez au dashboard DaisyUI.</p>
       <% if (error) { %>
       <div class="alert alert-error mt-2">
         <span><%= error %></span>
@@ -30,10 +31,35 @@
         </label>
         <button class="btn btn-primary w-full" type="submit">Créer mon compte</button>
       </form>
-      <p class="text-sm text-base-content/70">
-        Déjà un compte ?
-        <a class="link link-primary" href="/login">Se connecter</a>.
-      </p>
+        <p class="text-sm text-base-content/70">
+          Déjà un compte ?
+          <a class="link link-primary" href="/login">Se connecter</a>.
+        </p>
+      </div>
+    </div>
+    <div class="card brand-shell shadow-2xl">
+      <div class="card-body">
+        <span class="badge badge-outline border-white/40 text-white">Bienvenue</span>
+        <h2 class="text-3xl font-bold leading-tight">Rejoignez un espace pensé pour vos idées.</h2>
+        <p class="text-white/80">
+          Créez vos cards, suivez l'activité et profitez d'une interface fluide pensée pour la
+          collaboration.
+        </p>
+        <ul class="space-y-2 text-sm text-white/80">
+          <li class="flex items-center gap-2">
+            <span class="badge badge-xs bg-white/20 border-none"></span>
+            Organisation instantanée.
+          </li>
+          <li class="flex items-center gap-2">
+            <span class="badge badge-xs bg-white/20 border-none"></span>
+            Design moderne DaisyUI.
+          </li>
+          <li class="flex items-center gap-2">
+            <span class="badge badge-xs bg-white/20 border-none"></span>
+            Hébergement simplifié avec Docker.
+          </li>
+        </ul>
+      </div>
     </div>
   </div>
 </div>
