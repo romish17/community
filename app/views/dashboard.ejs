@@ -1,90 +1,102 @@
 <%- include('partials/head', { title: 'Dashboard' }) %>
-<div class="navbar bg-base-100/80 backdrop-blur shadow-sm sticky top-0 z-10">
-  <div class="flex-1 px-6">
-    <div>
-      <p class="text-sm uppercase tracking-[0.2em] text-primary/60 section-title">Community</p>
-      <span class="text-2xl font-bold">Dashboard</span>
-    </div>
-  </div>
-  <div class="flex-none px-6 gap-3">
-    <button class="btn btn-ghost btn-sm">Support</button>
-    <form method="post" action="/logout">
-      <button class="btn btn-outline btn-sm" type="submit">Déconnexion</button>
-    </form>
-  </div>
-</div>
-
-<main class="max-w-6xl mx-auto px-6 py-10 space-y-10">
-  <section class="grid gap-6 lg:grid-cols-[1.4fr_0.6fr]">
-    <div class="card bg-base-100 shadow-xl card-highlight">
-      <div class="card-body">
-        <h2 class="card-title">Créer une nouvelle card</h2>
-        <p class="text-base-content/70">
-          Capturez une idée, un brief ou une note d'équipe. Chaque card est sauvegardée dans MySQL.
-        </p>
-      <form method="post" action="/cards" class="grid gap-4 md:grid-cols-2">
-        <label class="form-control md:col-span-1">
-          <div class="label">
-            <span class="label-text">Titre</span>
-          </div>
-          <input type="text" name="title" class="input input-bordered" required />
-        </label>
-        <label class="form-control md:col-span-2">
-          <div class="label">
-            <span class="label-text">Contenu</span>
-          </div>
-          <textarea name="content" class="textarea textarea-bordered" rows="4" required></textarea>
-        </label>
-        <div class="md:col-span-2">
-          <button class="btn btn-primary" type="submit">Ajouter</button>
-        </div>
-      </form>
-    </div>
-    </div>
-    <div class="card bg-base-100 shadow-xl stat-surface">
-      <div class="card-body">
-        <h3 class="text-lg font-semibold">Vue rapide</h3>
-        <div class="stats stats-vertical bg-transparent">
-          <div class="stat">
-            <div class="stat-title">Cards totales</div>
-            <div class="stat-value text-primary"><%= cards.length %></div>
-            <div class="stat-desc">Dernière mise à jour en temps réel</div>
-          </div>
-          <div class="stat">
-            <div class="stat-title">Prochaine étape</div>
-            <div class="stat-value text-base-content text-xl">Publier</div>
-            <div class="stat-desc">Partagez vos idées en équipe</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section>
-    <div class="flex items-center justify-between mb-4">
+<div class="page-shell">
+  <header class="navbar-shell sticky top-0 z-10">
+    <div class="max-w-6xl mx-auto px-6 py-4 nav-stack">
       <div>
-        <p class="text-sm uppercase tracking-[0.2em] text-primary/60 section-title">Mes cards</p>
-        <h2 class="text-2xl font-bold">Idées récentes</h2>
+        <p class="text-xs uppercase tracking-[0.3em] text-primary/60 section-title">Community</p>
+        <h1 class="text-2xl md:text-3xl font-bold">Dashboard</h1>
+        <p class="text-sm text-base-content/60">
+          Retrouvez vos cards et pilotez vos idées en un coup d'œil.
+        </p>
       </div>
-      <span class="badge badge-outline"><%= cards.length %> cards</span>
+      <div class="nav-actions">
+        <button class="btn btn-ghost btn-sm">Support</button>
+        <button class="btn btn-ghost btn-sm">Notifications</button>
+        <form method="post" action="/logout">
+          <button class="btn btn-outline btn-sm" type="submit">Déconnexion</button>
+        </form>
+      </div>
     </div>
-    <% if (cards.length === 0) { %>
-      <div class="alert">
-        <span>Aucune card pour le moment. Ajoutez-en une !</span>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-6 py-10 space-y-10">
+    <section class="dashboard-grid">
+      <div class="card bg-base-100 shadow-xl card-highlight">
+        <div class="card-body">
+          <h2 class="card-title">Créer une nouvelle card</h2>
+          <p class="text-base-content/70">
+            Capturez une idée, un brief ou une note d'équipe. Chaque card est sauvegardée dans MySQL.
+          </p>
+          <form method="post" action="/cards" class="grid gap-4 md:grid-cols-2">
+            <label class="form-control md:col-span-1">
+              <div class="label">
+                <span class="label-text">Titre</span>
+              </div>
+              <input type="text" name="title" class="input input-bordered" required />
+            </label>
+            <label class="form-control md:col-span-2">
+              <div class="label">
+                <span class="label-text">Contenu</span>
+              </div>
+              <textarea name="content" class="textarea textarea-bordered" rows="4" required></textarea>
+            </label>
+            <div class="md:col-span-2 flex flex-wrap gap-2">
+              <button class="btn btn-primary" type="submit">Ajouter</button>
+              <button class="btn btn-ghost" type="reset">Effacer</button>
+            </div>
+          </form>
+        </div>
       </div>
-    <% } else { %>
-      <div class="grid gap-6 md:grid-cols-2">
-        <% cards.forEach((card) => { %>
-          <div class="card bg-base-100 shadow card-highlight">
-            <div class="card-body">
-              <h3 class="card-title"><%= card.title %></h3>
-              <p class="text-base-content/80"><%= card.content %></p>
-              <p class="text-xs text-base-content/50">Créé le <%= new Date(card.created_at).toLocaleString('fr-FR') %></p>
+      <div class="card bg-base-100 shadow-xl stat-surface">
+        <div class="card-body">
+          <h3 class="text-lg font-semibold">Vue rapide</h3>
+          <div class="stats stats-vertical bg-transparent">
+            <div class="stat">
+              <div class="stat-title">Cards totales</div>
+              <div class="stat-value text-primary"><%= cards.length %></div>
+              <div class="stat-desc">Dernière mise à jour en temps réel</div>
+            </div>
+            <div class="stat">
+              <div class="stat-title">Prochaine étape</div>
+              <div class="stat-value text-base-content text-xl">Publier</div>
+              <div class="stat-desc">Partagez vos idées en équipe</div>
+            </div>
+            <div class="stat">
+              <div class="stat-title">Focus</div>
+              <div class="stat-value text-base-content text-xl">Explorer</div>
+              <div class="stat-desc">Inspirez vos prochaines cards</div>
             </div>
           </div>
-        <% }) %>
+        </div>
       </div>
-    <% } %>
-  </section>
-</main>
+    </section>
+
+    <section>
+      <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between mb-4">
+        <div>
+          <p class="text-xs uppercase tracking-[0.3em] text-primary/60 section-title">Mes cards</p>
+          <h2 class="text-2xl font-bold">Idées récentes</h2>
+        </div>
+        <span class="badge badge-outline"><%= cards.length %> cards</span>
+      </div>
+      <% if (cards.length === 0) { %>
+        <div class="alert">
+          <span>Aucune card pour le moment. Ajoutez-en une !</span>
+        </div>
+      <% } else { %>
+        <div class="cards-grid">
+          <% cards.forEach((card) => { %>
+            <div class="card bg-base-100 shadow card-highlight">
+              <div class="card-body">
+                <h3 class="card-title"><%= card.title %></h3>
+                <p class="text-base-content/80"><%= card.content %></p>
+                <p class="text-xs text-base-content/50">Créé le <%= new Date(card.created_at).toLocaleString('fr-FR') %></p>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+      <% } %>
+    </section>
+  </main>
+</div>
 <%- include('partials/footer') %>
