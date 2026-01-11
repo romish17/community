@@ -21,6 +21,30 @@ app.use(
   })
 );
 
+async function ensureSchema() {
+  const pool = getPool();
+  await pool.query(
+    `CREATE TABLE IF NOT EXISTS categories (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      user_id INT NOT NULL,
+      name VARCHAR(120) NOT NULL,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      UNIQUE KEY uniq_category_user (user_id, name)
+    )`
+  );
+  await pool.query(
+    "ALTER TABLE cards ADD COLUMN IF NOT EXISTS category_id INT DEFAULT NULL"
+  );
+  await pool.query(
+    `INSERT INTO categories (user_id, name)
+     SELECT u.id, 'Général'
+     FROM users u
+     WHERE NOT EXISTS (
+       SELECT 1 FROM categories c WHERE c.user_id = u.id AND c.name = 'Général'
+     )`
+  );
+}
+
 function requireAuth(req, res, next) {
   if (!req.session.userId) {
     return res.redirect("/login");
@@ -173,8 +197,10 @@ const port = process.env.PORT || 3000;
 
 connectWithRetry()
   .then(() => {
-    app.listen(port, () => {
-      console.log(`Server running on port ${port}`);
+    return ensureSchema().then(() => {
+      app.listen(port, () => {
+        console.log(`Server running on port ${port}`);
+      });
     });
   })
   .catch((error) => {
