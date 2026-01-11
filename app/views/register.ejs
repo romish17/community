@@ -1,65 +1,86 @@
 <%- include('partials/head', { title: 'Créer un compte' }) %>
-<div class="min-h-screen flex items-center justify-center px-4 py-10">
+<div class="min-h-screen flex items-center justify-center px-4 py-12">
   <div class="auth-grid w-full max-w-5xl">
-    <div class="card glass-panel shadow-xl form-surface">
-      <div class="card-body">
-        <h1 class="text-2xl font-bold">Créer un compte</h1>
-        <p class="text-base-content/70">Accédez au dashboard DaisyUI.</p>
-        <% if (error) { %>
-        <div class="alert alert-error mt-2">
-          <span><%= error %></span>
+    <div class="panel rounded-3xl p-8 lg:p-10 soft-shadow">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-2xl font-semibold">Créer un compte</h1>
+          <p class="mt-2 text-sm text-slate-300">Commencez en quelques secondes.</p>
         </div>
-        <% } %>
-        <form method="post" action="/register" class="space-y-4 mt-4">
-          <label class="form-control">
-            <div class="label">
-              <span class="label-text">Nom</span>
-            </div>
-            <input type="text" name="name" class="input input-bordered" required />
-          </label>
-          <label class="form-control">
-            <div class="label">
-              <span class="label-text">Email</span>
-            </div>
-            <input type="email" name="email" class="input input-bordered" required />
-          </label>
-          <label class="form-control">
-            <div class="label">
-              <span class="label-text">Mot de passe</span>
-            </div>
-            <input type="password" name="password" class="input input-bordered" required />
-          </label>
-          <button class="btn btn-primary w-full" type="submit">Créer mon compte</button>
-        </form>
-        <p class="text-sm text-base-content/70">
-          Déjà un compte ?
-          <a class="link link-primary" href="/login">Se connecter</a>.
-        </p>
+        <span class="badge-outline rounded-full px-3 py-1 text-xs text-slate-200">Nouveau</span>
       </div>
+      <% if (error) { %>
+      <div class="mt-4 rounded-2xl border border-rose-500/40 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
+        <%= error %>
+      </div>
+      <% } %>
+      <form method="post" action="/register" class="mt-6 space-y-4">
+        <label class="block text-sm">
+          <span class="text-slate-300">Nom</span>
+          <input
+            type="text"
+            name="name"
+            class="mt-2 w-full rounded-2xl border border-slate-700 bg-slate-900/70 px-4 py-3 text-sm text-slate-100 placeholder:text-slate-500 focus:border-sky-400 focus:outline-none"
+            placeholder="Votre nom"
+            required
+          />
+        </label>
+        <label class="block text-sm">
+          <span class="text-slate-300">Email</span>
+          <input
+            type="email"
+            name="email"
+            class="mt-2 w-full rounded-2xl border border-slate-700 bg-slate-900/70 px-4 py-3 text-sm text-slate-100 placeholder:text-slate-500 focus:border-sky-400 focus:outline-none"
+            placeholder="vous@email.com"
+            required
+          />
+        </label>
+        <label class="block text-sm">
+          <span class="text-slate-300">Mot de passe</span>
+          <input
+            type="password"
+            name="password"
+            class="mt-2 w-full rounded-2xl border border-slate-700 bg-slate-900/70 px-4 py-3 text-sm text-slate-100 placeholder:text-slate-500 focus:border-sky-400 focus:outline-none"
+            placeholder="Créez un mot de passe"
+            required
+          />
+        </label>
+        <button
+          class="w-full rounded-2xl bg-sky-500 px-4 py-3 text-sm font-semibold text-white transition hover:bg-sky-400"
+          type="submit"
+        >
+          Créer mon compte
+        </button>
+      </form>
+      <p class="mt-6 text-sm text-slate-300">
+        Déjà un compte ?
+        <a class="text-sky-300 hover:text-sky-200" href="/login">Se connecter</a>.
+      </p>
     </div>
-    <div class="card brand-shell shadow-2xl">
-      <div class="card-body">
-        <span class="badge badge-outline border-white/40 text-white">Bienvenue</span>
-        <h2 class="text-3xl font-bold leading-tight">Rejoignez un espace pensé pour vos idées.</h2>
-        <p class="text-white/80">
-          Créez vos cards, suivez l'activité et profitez d'une interface fluide pensée pour la
-          collaboration.
-        </p>
-        <ul class="space-y-2 text-sm text-white/80">
-          <li class="flex items-center gap-2">
-            <span class="badge badge-xs bg-white/20 border-none"></span>
-            Organisation instantanée.
-          </li>
-          <li class="flex items-center gap-2">
-            <span class="badge badge-xs bg-white/20 border-none"></span>
-            Design moderne DaisyUI.
-          </li>
-          <li class="flex items-center gap-2">
-            <span class="badge badge-xs bg-white/20 border-none"></span>
-            Hébergement simplifié avec Docker.
-          </li>
-        </ul>
-      </div>
+    <div class="glass rounded-3xl p-8 lg:p-10 soft-shadow">
+      <span class="inline-flex items-center gap-2 text-xs uppercase tracking-[0.4em] text-sky-200">
+        Bienvenue
+      </span>
+      <h2 class="mt-6 text-3xl md:text-4xl font-semibold leading-tight">
+        Un tableau de bord clair, conçu pour la collaboration.
+      </h2>
+      <p class="mt-4 text-slate-200/80">
+        Centralisez les briefs, suivez l'avancement et partagez vos prochaines étapes avec votre équipe.
+      </p>
+      <ul class="mt-6 space-y-3 text-sm text-slate-200">
+        <li class="flex items-center gap-3">
+          <span class="h-2 w-2 rounded-full bg-sky-400"></span>
+          Cards organisées et synchronisées.
+        </li>
+        <li class="flex items-center gap-3">
+          <span class="h-2 w-2 rounded-full bg-sky-400"></span>
+          Interface responsive pour mobile et desktop.
+        </li>
+        <li class="flex items-center gap-3">
+          <span class="h-2 w-2 rounded-full bg-sky-400"></span>
+          Hébergement Dockerisé prêt à l'emploi.
+        </li>
+      </ul>
     </div>
   </div>
 </div>
