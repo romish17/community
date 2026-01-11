@@ -1,0 +1,311 @@
+<%- include('partials/head', { title: 'Dashboard' }) %>
+<div class="min-h-screen">
+  <header class="sticky top-0 z-10 border-b border-slate-800/60 bg-slate-950/80 backdrop-blur">
+    <div class="max-w-6xl mx-auto px-6 py-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+      <div>
+        <p class="text-xs uppercase tracking-[0.4em] text-sky-200">Community</p>
+        <h1 class="text-3xl font-semibold">Dashboard</h1>
+        <p class="text-sm text-slate-300">
+          Suivez vos cards et pilotez votre activité en temps réel.
+        </p>
+      </div>
+      <div class="flex flex-wrap items-center gap-3">
+        <button
+          class="rounded-full bg-sky-500 px-4 py-2 text-sm font-semibold text-white hover:bg-sky-400"
+          data-dialog="create-card-modal"
+        >
+          Nouvelle card
+        </button>
+        <button
+          class="rounded-full border border-slate-700 px-4 py-2 text-sm text-slate-200 hover:border-slate-500"
+          data-dialog="create-category-modal"
+        >
+          Nouvelle catégorie
+        </button>
+        <button class="rounded-full border border-slate-700 px-4 py-2 text-sm text-slate-200 hover:border-slate-500">
+          Support
+        </button>
+        <button class="rounded-full border border-slate-700 px-4 py-2 text-sm text-slate-200 hover:border-slate-500">
+          Notifications
+        </button>
+        <form method="post" action="/logout">
+          <button
+            class="rounded-full bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-900 hover:bg-white"
+            type="submit"
+          >
+            Déconnexion
+          </button>
+        </form>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-6 py-10 space-y-10">
+    <section class="dashboard-grid">
+      <div class="panel rounded-3xl p-8 soft-shadow">
+        <div class="flex flex-col gap-4">
+          <div>
+            <h2 class="text-2xl font-semibold">Créer une nouvelle card</h2>
+            <p class="mt-2 text-sm text-slate-300">
+              Capturez une idée, un brief ou une note. Tout est sauvegardé dans MySQL.
+            </p>
+          </div>
+          <div class="glass rounded-2xl p-5 text-sm text-slate-300">
+            Utilisez les boutons en haut de page pour créer une card ou ajouter une nouvelle catégorie.
+          </div>
+        </div>
+      </div>
+      <div class="stat-card rounded-3xl p-8 soft-shadow">
+        <div class="flex flex-col gap-6">
+          <div>
+            <h3 class="text-lg font-semibold">Vue rapide</h3>
+            <p class="mt-2 text-sm text-slate-300">Un résumé de votre activité.</p>
+          </div>
+          <div class="grid gap-4">
+            <div class="glass rounded-2xl p-4">
+              <p class="text-xs uppercase tracking-[0.3em] text-slate-300">Cards totales</p>
+              <p class="mt-2 text-3xl font-semibold text-white"><%= cards.length %></p>
+              <p class="text-xs text-slate-300">Mise à jour instantanée</p>
+            </div>
+            <div class="glass rounded-2xl p-4">
+              <p class="text-xs uppercase tracking-[0.3em] text-slate-300">Prochaine étape</p>
+              <p class="mt-2 text-xl font-semibold text-white">Publier</p>
+              <p class="text-xs text-slate-300">Partagez vos idées en équipe</p>
+            </div>
+            <div class="glass rounded-2xl p-4">
+              <p class="text-xs uppercase tracking-[0.3em] text-slate-300">Focus</p>
+              <p class="mt-2 text-xl font-semibold text-white">Explorer</p>
+              <p class="text-xs text-slate-300">Inspirez vos prochaines cards</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <div>
+          <p class="text-xs uppercase tracking-[0.4em] text-sky-200">Vos cards</p>
+          <h2 class="text-2xl font-semibold">Idées récentes</h2>
+        </div>
+        <span class="badge-outline rounded-full px-4 py-1 text-xs text-slate-200">
+          <%= cards.length %> cards
+        </span>
+      </div>
+      <% if (cards.length === 0) { %>
+        <div class="mt-6 glass rounded-2xl p-6 text-sm text-slate-300">
+          Aucune card pour le moment. Ajoutez-en une !
+        </div>
+      <% } else { %>
+        <div class="card-grid mt-6">
+          <% cards.forEach((card) => { %>
+            <div class="panel rounded-3xl p-6 soft-shadow">
+              <h3 class="text-lg font-semibold text-white"><%= card.title %></h3>
+              <% if (card.category_name) { %>
+                <span class="mt-3 inline-flex w-fit rounded-full border border-slate-700 px-3 py-1 text-xs text-slate-200">
+                  <%= card.category_name %>
+                </span>
+              <% } %>
+              <p class="mt-3 text-sm text-slate-300"><%= card.content %></p>
+              <p class="mt-6 text-xs text-slate-400">
+                Créé le <%= new Date(card.created_at).toLocaleString('fr-FR') %>
+              </p>
+              <div class="mt-4 flex flex-wrap gap-2">
+                <button
+                  class="rounded-full border border-slate-700 px-3 py-1 text-xs text-slate-200 hover:border-slate-500"
+                  data-dialog="edit-card-<%= card.id %>"
+                >
+                  Modifier
+                </button>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+      <% } %>
+    </section>
+  </main>
+</div>
+
+<dialog id="create-card-modal" class="backdrop:bg-slate-900/70">
+  <div class="panel w-full max-w-2xl rounded-3xl p-8 text-slate-100">
+    <div class="flex items-center justify-between">
+      <h2 class="text-2xl font-semibold">Nouvelle card</h2>
+      <button class="text-slate-300 hover:text-white" data-close>✕</button>
+    </div>
+    <form method="post" action="/cards" class="mt-6 space-y-4">
+      <label class="block text-sm">
+        <span class="text-slate-300">Titre</span>
+        <input
+          type="text"
+          name="title"
+          class="mt-2 w-full rounded-2xl border border-slate-700 bg-slate-900/70 px-4 py-3 text-sm text-slate-100 placeholder:text-slate-500 focus:border-sky-400 focus:outline-none"
+          placeholder="Ex: Nouvelle idée"
+          required
+        />
+      </label>
+      <label class="block text-sm">
+        <span class="text-slate-300">Catégorie</span>
+        <select
+          name="categoryId"
+          class="mt-2 w-full rounded-2xl border border-slate-700 bg-slate-900/70 px-4 py-3 text-sm text-slate-100 focus:border-sky-400 focus:outline-none"
+        >
+          <option value="">Sans catégorie</option>
+          <% categories.forEach((category) => { %>
+            <option value="<%= category.id %>"><%= category.name %></option>
+          <% }) %>
+        </select>
+      </label>
+      <label class="block text-sm">
+        <span class="text-slate-300">Contenu</span>
+        <textarea
+          name="content"
+          rows="4"
+          class="mt-2 w-full rounded-2xl border border-slate-700 bg-slate-900/70 px-4 py-3 text-sm text-slate-100 placeholder:text-slate-500 focus:border-sky-400 focus:outline-none"
+          placeholder="Décrivez rapidement votre card."
+          required
+        ></textarea>
+      </label>
+      <div class="flex flex-wrap justify-end gap-3">
+        <button
+          type="button"
+          class="rounded-full border border-slate-700 px-4 py-2 text-sm text-slate-200 hover:border-slate-500"
+          data-close
+        >
+          Annuler
+        </button>
+        <button
+          class="rounded-full bg-sky-500 px-4 py-2 text-sm font-semibold text-white hover:bg-sky-400"
+          type="submit"
+        >
+          Ajouter
+        </button>
+      </div>
+    </form>
+  </div>
+</dialog>
+
+<dialog id="create-category-modal" class="backdrop:bg-slate-900/70">
+  <div class="panel w-full max-w-xl rounded-3xl p-8 text-slate-100">
+    <div class="flex items-center justify-between">
+      <h2 class="text-2xl font-semibold">Nouvelle catégorie</h2>
+      <button class="text-slate-300 hover:text-white" data-close>✕</button>
+    </div>
+    <form method="post" action="/categories" class="mt-6 space-y-4">
+      <label class="block text-sm">
+        <span class="text-slate-300">Nom de la catégorie</span>
+        <input
+          type="text"
+          name="name"
+          class="mt-2 w-full rounded-2xl border border-slate-700 bg-slate-900/70 px-4 py-3 text-sm text-slate-100 placeholder:text-slate-500 focus:border-sky-400 focus:outline-none"
+          placeholder="Ex: Marketing"
+          required
+        />
+      </label>
+      <div class="flex flex-wrap justify-end gap-3">
+        <button
+          type="button"
+          class="rounded-full border border-slate-700 px-4 py-2 text-sm text-slate-200 hover:border-slate-500"
+          data-close
+        >
+          Annuler
+        </button>
+        <button
+          class="rounded-full bg-sky-500 px-4 py-2 text-sm font-semibold text-white hover:bg-sky-400"
+          type="submit"
+        >
+          Créer
+        </button>
+      </div>
+    </form>
+  </div>
+</dialog>
+
+<% cards.forEach((card) => { %>
+  <dialog id="edit-card-<%= card.id %>" class="backdrop:bg-slate-900/70">
+    <div class="panel w-full max-w-2xl rounded-3xl p-8 text-slate-100">
+      <div class="flex items-center justify-between">
+        <h2 class="text-2xl font-semibold">Modifier la card</h2>
+        <button class="text-slate-300 hover:text-white" data-close>✕</button>
+      </div>
+      <form method="post" action="/cards/<%= card.id %>" class="mt-6 space-y-4">
+        <label class="block text-sm">
+          <span class="text-slate-300">Titre</span>
+          <input
+            type="text"
+            name="title"
+            value="<%= card.title %>"
+            class="mt-2 w-full rounded-2xl border border-slate-700 bg-slate-900/70 px-4 py-3 text-sm text-slate-100 focus:border-sky-400 focus:outline-none"
+            required
+          />
+        </label>
+        <label class="block text-sm">
+          <span class="text-slate-300">Catégorie</span>
+          <select
+            name="categoryId"
+            class="mt-2 w-full rounded-2xl border border-slate-700 bg-slate-900/70 px-4 py-3 text-sm text-slate-100 focus:border-sky-400 focus:outline-none"
+          >
+            <option value="">Sans catégorie</option>
+            <% categories.forEach((category) => { %>
+              <option value="<%= category.id %>" <%= category.id === card.category_id ? "selected" : "" %>>
+                <%= category.name %>
+              </option>
+            <% }) %>
+          </select>
+        </label>
+        <label class="block text-sm">
+          <span class="text-slate-300">Contenu</span>
+          <textarea
+            name="content"
+            rows="4"
+            class="mt-2 w-full rounded-2xl border border-slate-700 bg-slate-900/70 px-4 py-3 text-sm text-slate-100 focus:border-sky-400 focus:outline-none"
+            required
+          ><%= card.content %></textarea>
+        </label>
+        <div class="flex flex-wrap justify-end gap-3">
+          <button
+            type="button"
+            class="rounded-full border border-slate-700 px-4 py-2 text-sm text-slate-200 hover:border-slate-500"
+            data-close
+          >
+            Annuler
+          </button>
+          <button
+            class="rounded-full bg-sky-500 px-4 py-2 text-sm font-semibold text-white hover:bg-sky-400"
+            type="submit"
+          >
+            Enregistrer
+          </button>
+        </div>
+      </form>
+    </div>
+  </dialog>
+<% }) %>
+
+<script>
+  document.querySelectorAll("[data-dialog]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const dialog = document.getElementById(button.dataset.dialog);
+      if (dialog) {
+        dialog.showModal();
+      }
+    });
+  });
+
+  document.querySelectorAll("dialog").forEach((dialog) => {
+    dialog.addEventListener("click", (event) => {
+      if (event.target === dialog) {
+        dialog.close();
+      }
+    });
+  });
+
+  document.querySelectorAll("[data-close]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const dialog = button.closest("dialog");
+      if (dialog) {
+        dialog.close();
+      }
+    });
+  });
+</script>
+<%- include('partials/footer') %>
