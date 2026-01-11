@@ -1,0 +1,31 @@
+version: "3.9"
+
+services:
+  db:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: community
+      MYSQL_USER: community
+      MYSQL_PASSWORD: community
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./app/sql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    ports:
+      - "3306:3306"
+
+  app:
+    build: ./app
+    restart: unless-stopped
+    env_file:
+      - ./app/.env.example
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+    volumes:
+      - ./app:/app
+
+volumes:
+  db_data:

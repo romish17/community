@@ -1,0 +1,40 @@
+<%- include('partials/head', { title: 'Créer un compte' }) %>
+<div class="min-h-screen flex items-center justify-center px-4">
+  <div class="card w-full max-w-md bg-base-100 shadow-xl">
+    <div class="card-body">
+      <h1 class="text-2xl font-bold">Créer un compte</h1>
+      <p class="text-base-content/70">Accédez au dashboard DaisyUI.</p>
+      <% if (error) { %>
+      <div class="alert alert-error mt-2">
+        <span><%= error %></span>
+      </div>
+      <% } %>
+      <form method="post" action="/register" class="space-y-4 mt-4">
+        <label class="form-control">
+          <div class="label">
+            <span class="label-text">Nom</span>
+          </div>
+          <input type="text" name="name" class="input input-bordered" required />
+        </label>
+        <label class="form-control">
+          <div class="label">
+            <span class="label-text">Email</span>
+          </div>
+          <input type="email" name="email" class="input input-bordered" required />
+        </label>
+        <label class="form-control">
+          <div class="label">
+            <span class="label-text">Mot de passe</span>
+          </div>
+          <input type="password" name="password" class="input input-bordered" required />
+        </label>
+        <button class="btn btn-primary w-full" type="submit">Créer mon compte</button>
+      </form>
+      <p class="text-sm text-base-content/70">
+        Déjà un compte ?
+        <a class="link link-primary" href="/login">Se connecter</a>.
+      </p>
+    </div>
+  </div>
+</div>
+<%- include('partials/footer') %>
