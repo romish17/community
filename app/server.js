@@ -88,6 +88,10 @@ app.post("/register", async (req, res) => {
       "INSERT INTO users (name, email, password_hash) VALUES (?, ?, ?)",
       [name, email, passwordHash]
     );
+    await pool.query("INSERT INTO categories (user_id, name) VALUES (?, ?)", [
+      result.insertId,
+      "Général",
+    ]);
 
     req.session.userId = result.insertId;
     return res.redirect("/dashboard");
@@ -105,23 +109,61 @@ app.post("/logout", (req, res) => {
 app.get("/dashboard", requireAuth, async (req, res) => {
   const pool = getPool();
   const [cards] = await pool.query(
-    "SELECT id, title, content, created_at FROM cards WHERE user_id = ? ORDER BY created_at DESC",
+    `SELECT cards.id, cards.title, cards.content, cards.created_at, categories.id AS category_id,
+      categories.name AS category_name
+     FROM cards
+     LEFT JOIN categories ON cards.category_id = categories.id
+     WHERE cards.user_id = ?
+     ORDER BY cards.created_at DESC`,
     [req.session.userId]
   );
-  res.render("dashboard", { cards });
+  const [categories] = await pool.query(
+    "SELECT id, name FROM categories WHERE user_id = ? ORDER BY name ASC",
+    [req.session.userId]
+  );
+  res.render("dashboard", { cards, categories });
 });
 
 app.post("/cards", requireAuth, async (req, res) => {
-  const { title, content } = req.body;
+  const { title, content, categoryId } = req.body;
   if (!title || !content) {
     return res.redirect("/dashboard");
   }
 
   const pool = getPool();
-  await pool.query("INSERT INTO cards (user_id, title, content) VALUES (?, ?, ?)", [
+  await pool.query(
+    "INSERT INTO cards (user_id, category_id, title, content) VALUES (?, ?, ?, ?)",
+    [req.session.userId, categoryId || null, title, content]
+  );
+
+  return res.redirect("/dashboard");
+});
+
+app.post("/cards/:id", requireAuth, async (req, res) => {
+  const { title, content, categoryId } = req.body;
+  if (!title || !content) {
+    return res.redirect("/dashboard");
+  }
+
+  const pool = getPool();
+  await pool.query(
+    "UPDATE cards SET title = ?, content = ?, category_id = ? WHERE id = ? AND user_id = ?",
+    [title, content, categoryId || null, req.params.id, req.session.userId]
+  );
+
+  return res.redirect("/dashboard");
+});
+
+app.post("/categories", requireAuth, async (req, res) => {
+  const { name } = req.body;
+  if (!name) {
+    return res.redirect("/dashboard");
+  }
+
+  const pool = getPool();
+  await pool.query("INSERT IGNORE INTO categories (user_id, name) VALUES (?, ?)", [
     req.session.userId,
-    title,
-    content,
+    name,
   ]);
 
   return res.redirect("/dashboard");
