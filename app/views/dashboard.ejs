@@ -1,0 +1,319 @@
+<%- include('partials/head', { title: 'Dashboard' }) %>
+<% const getDomain = (url) => { try { return new URL(url).hostname; } catch { return ""; } }; %>
+<div class="min-h-screen">
+  <header class="sticky top-0 z-10 border-b border-slate-800/60 bg-slate-950/80 backdrop-blur">
+    <div class="w-full px-6 lg:px-10 py-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+      <div>
+        <p class="text-xs uppercase tracking-[0.4em] text-sky-200">Community</p>
+        <h1 class="text-3xl font-semibold">Dashboard</h1>
+        <p class="text-sm text-slate-300">
+          Centralisez vos favoris et vos ressources clés en un seul endroit.
+        </p>
+      </div>
+      <div class="flex flex-wrap items-center gap-3">
+        <button
+          class="rounded-full bg-emerald-500 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-400"
+          data-dialog="create-favorite-modal"
+        >
+          Nouveau favori
+        </button>
+        <button
+          class="rounded-full border border-slate-700 px-4 py-2 text-sm text-slate-200 hover:border-slate-500"
+          data-dialog="create-category-modal"
+        >
+          Nouvelle catégorie
+        </button>
+        <button class="rounded-full border border-slate-700 px-4 py-2 text-sm text-slate-200 hover:border-slate-500">
+          Support
+        </button>
+        <button class="rounded-full border border-slate-700 px-4 py-2 text-sm text-slate-200 hover:border-slate-500">
+          Notifications
+        </button>
+        <form method="post" action="/logout">
+          <button
+            class="rounded-full bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-900 hover:bg-white"
+            type="submit"
+          >
+            Déconnexion
+          </button>
+        </form>
+      </div>
+    </div>
+  </header>
+
+  <main class="w-full px-6 lg:px-10 py-10 space-y-10">
+    <section class="panel rounded-3xl p-8 soft-shadow">
+      <div class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+        <div>
+          <p class="text-xs uppercase tracking-[0.4em] text-emerald-200">Vos favoris</p>
+          <h2 class="text-3xl font-semibold">Ressources enregistrées</h2>
+          <p class="mt-2 text-sm text-slate-300">
+            Gardez vos liens utiles sous la main, classés par catégorie.
+          </p>
+        </div>
+        <span class="badge-outline rounded-full px-4 py-1 text-xs text-slate-200">
+          <%= favorites.length %> favoris
+        </span>
+      </div>
+      <% if (favorites.length === 0) { %>
+        <div class="mt-6 glass rounded-2xl p-6 text-sm text-slate-300">
+          Aucun favori pour le moment. Ajoutez votre premier lien !
+        </div>
+      <% } else { %>
+        <div class="card-grid mt-8">
+          <% favorites.forEach((favorite) => { %>
+            <div class="panel rounded-3xl p-6 soft-shadow">
+              <div class="flex items-start justify-between gap-4">
+                <div class="flex items-start gap-3">
+                  <% const domain = getDomain(favorite.url); %>
+                  <% if (domain) { %>
+                    <img
+                      src="https://www.google.com/s2/favicons?domain=<%= domain %>&sz=64"
+                      alt=""
+                      class="h-10 w-10 rounded-full bg-slate-900/70 p-2"
+                    />
+                  <% } else { %>
+                    <div class="h-10 w-10 rounded-full bg-slate-900/70 p-2 text-xs text-slate-300">?</div>
+                  <% } %>
+                  <div>
+                    <h3 class="text-lg font-semibold text-white"><%= favorite.title %></h3>
+                    <p class="mt-1 text-sm text-slate-300 break-all"><%= favorite.url %></p>
+                  </div>
+                </div>
+                <a
+                  class="rounded-full border border-slate-700 px-3 py-1 text-xs text-slate-200 hover:border-slate-500"
+                  href="<%= favorite.url %>"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Ouvrir
+                </a>
+              </div>
+              <% if (favorite.category_name) { %>
+                <span class="mt-4 inline-flex w-fit rounded-full border border-slate-700 px-3 py-1 text-xs text-slate-200">
+                  <%= favorite.category_name %>
+                </span>
+              <% } %>
+              <% if (favorite.description) { %>
+                <p class="mt-3 text-sm text-slate-300"><%= favorite.description %></p>
+              <% } %>
+              <p class="mt-6 text-xs text-slate-400">
+                Ajouté le <%= new Date(favorite.created_at).toLocaleString('fr-FR') %>
+              </p>
+              <div class="mt-4 flex flex-wrap gap-2">
+                <button
+                  class="rounded-full border border-slate-700 px-3 py-1 text-xs text-slate-200 hover:border-slate-500"
+                  data-dialog="edit-favorite-<%= favorite.id %>"
+                >
+                  Modifier
+                </button>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+      <% } %>
+    </section>
+  </main>
+</div>
+
+<dialog id="create-category-modal" class="backdrop:bg-slate-900/70">
+  <div class="panel w-full max-w-xl rounded-3xl p-8 text-slate-100">
+    <div class="flex items-center justify-between">
+      <h2 class="text-2xl font-semibold">Nouvelle catégorie</h2>
+      <button class="text-slate-300 hover:text-white" data-close>✕</button>
+    </div>
+    <form method="post" action="/categories" class="mt-6 space-y-4">
+      <label class="block text-sm">
+        <span class="text-slate-300">Nom de la catégorie</span>
+        <input
+          type="text"
+          name="name"
+          class="mt-2 w-full rounded-2xl border border-slate-700 bg-slate-900/70 px-4 py-3 text-sm text-slate-100 placeholder:text-slate-500 focus:border-sky-400 focus:outline-none"
+          placeholder="Ex: Marketing"
+          required
+        />
+      </label>
+      <div class="flex flex-wrap justify-end gap-3">
+        <button
+          type="button"
+          class="rounded-full border border-slate-700 px-4 py-2 text-sm text-slate-200 hover:border-slate-500"
+          data-close
+        >
+          Annuler
+        </button>
+        <button
+          class="rounded-full bg-sky-500 px-4 py-2 text-sm font-semibold text-white hover:bg-sky-400"
+          type="submit"
+        >
+          Créer
+        </button>
+      </div>
+    </form>
+  </div>
+</dialog>
+
+<dialog id="create-favorite-modal" class="backdrop:bg-slate-900/70">
+  <div class="panel w-full max-w-2xl rounded-3xl p-8 text-slate-100">
+    <div class="flex items-center justify-between">
+      <h2 class="text-2xl font-semibold">Nouveau favori</h2>
+      <button class="text-slate-300 hover:text-white" data-close>✕</button>
+    </div>
+    <form method="post" action="/favorites" class="mt-6 space-y-4">
+      <label class="block text-sm">
+        <span class="text-slate-300">Titre</span>
+        <input
+          type="text"
+          name="title"
+          class="mt-2 w-full rounded-2xl border border-slate-700 bg-slate-900/70 px-4 py-3 text-sm text-slate-100 focus:border-emerald-400 focus:outline-none"
+          placeholder="Ex: Documentation API"
+          required
+        />
+      </label>
+      <label class="block text-sm">
+        <span class="text-slate-300">Lien</span>
+        <input
+          type="url"
+          name="url"
+          class="mt-2 w-full rounded-2xl border border-slate-700 bg-slate-900/70 px-4 py-3 text-sm text-slate-100 focus:border-emerald-400 focus:outline-none"
+          placeholder="https://exemple.com"
+          required
+        />
+      </label>
+      <label class="block text-sm">
+        <span class="text-slate-300">Catégorie</span>
+        <select
+          name="categoryId"
+          class="mt-2 w-full rounded-2xl border border-slate-700 bg-slate-900/70 px-4 py-3 text-sm text-slate-100 focus:border-emerald-400 focus:outline-none"
+        >
+          <option value="">Sans catégorie</option>
+          <% categories.forEach((category) => { %>
+            <option value="<%= category.id %>"><%= category.name %></option>
+          <% }) %>
+        </select>
+      </label>
+      <label class="block text-sm">
+        <span class="text-slate-300">Description (optionnel)</span>
+        <textarea
+          name="description"
+          rows="3"
+          class="mt-2 w-full rounded-2xl border border-slate-700 bg-slate-900/70 px-4 py-3 text-sm text-slate-100 focus:border-emerald-400 focus:outline-none"
+          placeholder="Pourquoi ce lien est utile ?"
+        ></textarea>
+      </label>
+      <div class="flex flex-wrap justify-end gap-3">
+        <button
+          type="button"
+          class="rounded-full border border-slate-700 px-4 py-2 text-sm text-slate-200 hover:border-slate-500"
+          data-close
+        >
+          Annuler
+        </button>
+        <button
+          class="rounded-full bg-emerald-500 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-400"
+          type="submit"
+        >
+          Ajouter
+        </button>
+      </div>
+    </form>
+  </div>
+</dialog>
+
+<% favorites.forEach((favorite) => { %>
+  <dialog id="edit-favorite-<%= favorite.id %>" class="backdrop:bg-slate-900/70">
+    <div class="panel w-full max-w-2xl rounded-3xl p-8 text-slate-100">
+      <div class="flex items-center justify-between">
+        <h2 class="text-2xl font-semibold">Modifier le favori</h2>
+        <button class="text-slate-300 hover:text-white" data-close>✕</button>
+      </div>
+      <form method="post" action="/favorites/<%= favorite.id %>" class="mt-6 space-y-4">
+        <label class="block text-sm">
+          <span class="text-slate-300">Titre</span>
+          <input
+            type="text"
+            name="title"
+            value="<%= favorite.title %>"
+            class="mt-2 w-full rounded-2xl border border-slate-700 bg-slate-900/70 px-4 py-3 text-sm text-slate-100 focus:border-emerald-400 focus:outline-none"
+            required
+          />
+        </label>
+        <label class="block text-sm">
+          <span class="text-slate-300">Lien</span>
+          <input
+            type="url"
+            name="url"
+            value="<%= favorite.url %>"
+            class="mt-2 w-full rounded-2xl border border-slate-700 bg-slate-900/70 px-4 py-3 text-sm text-slate-100 focus:border-emerald-400 focus:outline-none"
+            required
+          />
+        </label>
+        <label class="block text-sm">
+          <span class="text-slate-300">Catégorie</span>
+          <select
+            name="categoryId"
+            class="mt-2 w-full rounded-2xl border border-slate-700 bg-slate-900/70 px-4 py-3 text-sm text-slate-100 focus:border-emerald-400 focus:outline-none"
+          >
+            <option value="">Sans catégorie</option>
+            <% categories.forEach((category) => { %>
+              <option value="<%= category.id %>" <%= category.id === favorite.category_id ? "selected" : "" %>>
+                <%= category.name %>
+              </option>
+            <% }) %>
+          </select>
+        </label>
+        <label class="block text-sm">
+          <span class="text-slate-300">Description (optionnel)</span>
+          <textarea
+            name="description"
+            rows="3"
+            class="mt-2 w-full rounded-2xl border border-slate-700 bg-slate-900/70 px-4 py-3 text-sm text-slate-100 focus:border-emerald-400 focus:outline-none"
+          ><%= favorite.description || "" %></textarea>
+        </label>
+        <div class="flex flex-wrap justify-end gap-3">
+          <button
+            type="button"
+            class="rounded-full border border-slate-700 px-4 py-2 text-sm text-slate-200 hover:border-slate-500"
+            data-close
+          >
+            Annuler
+          </button>
+          <button
+            class="rounded-full bg-emerald-500 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-400"
+            type="submit"
+          >
+            Enregistrer
+          </button>
+        </div>
+      </form>
+    </div>
+  </dialog>
+<% }) %>
+
+<script>
+  document.querySelectorAll("[data-dialog]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const dialog = document.getElementById(button.dataset.dialog);
+      if (dialog) {
+        dialog.showModal();
+      }
+    });
+  });
+
+  document.querySelectorAll("dialog").forEach((dialog) => {
+    dialog.addEventListener("click", (event) => {
+      if (event.target === dialog) {
+        dialog.close();
+      }
+    });
+  });
+
+  document.querySelectorAll("[data-close]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const dialog = button.closest("dialog");
+      if (dialog) {
+        dialog.close();
+      }
+    });
+  });
+</script>
+<%- include('partials/footer') %>
