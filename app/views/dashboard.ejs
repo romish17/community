@@ -1,21 +1,16 @@
 <%- include('partials/head', { title: 'Dashboard' }) %>
+<% const getDomain = (url) => { try { return new URL(url).hostname; } catch { return ""; } }; %>
 <div class="min-h-screen">
   <header class="sticky top-0 z-10 border-b border-slate-800/60 bg-slate-950/80 backdrop-blur">
-    <div class="max-w-6xl mx-auto px-6 py-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+    <div class="w-full px-6 lg:px-10 py-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
       <div>
         <p class="text-xs uppercase tracking-[0.4em] text-sky-200">Community</p>
         <h1 class="text-3xl font-semibold">Dashboard</h1>
         <p class="text-sm text-slate-300">
-          Suivez vos cards et pilotez votre activité en temps réel.
+          Centralisez vos favoris et vos ressources clés en un seul endroit.
         </p>
       </div>
       <div class="flex flex-wrap items-center gap-3">
-        <button
-          class="rounded-full bg-sky-500 px-4 py-2 text-sm font-semibold text-white hover:bg-sky-400"
-          data-dialog="create-card-modal"
-        >
-          Nouvelle card
-        </button>
         <button
           class="rounded-full bg-emerald-500 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-400"
           data-dialog="create-favorite-modal"
@@ -46,95 +41,15 @@
     </div>
   </header>
 
-  <main class="max-w-6xl mx-auto px-6 py-10 space-y-10">
-    <section class="dashboard-grid">
-      <div class="panel rounded-3xl p-8 soft-shadow">
-        <div class="flex flex-col gap-4">
-          <div>
-            <h2 class="text-2xl font-semibold">Créer une nouvelle card</h2>
-            <p class="mt-2 text-sm text-slate-300">
-              Capturez une idée, un brief ou une note. Tout est sauvegardé dans MySQL.
-            </p>
-          </div>
-          <div class="glass rounded-2xl p-5 text-sm text-slate-300">
-            Utilisez les boutons en haut de page pour créer une card ou ajouter une nouvelle catégorie.
-          </div>
-        </div>
-      </div>
-      <div class="stat-card rounded-3xl p-8 soft-shadow">
-        <div class="flex flex-col gap-6">
-          <div>
-            <h3 class="text-lg font-semibold">Vue rapide</h3>
-            <p class="mt-2 text-sm text-slate-300">Un résumé de votre activité.</p>
-          </div>
-          <div class="grid gap-4">
-            <div class="glass rounded-2xl p-4">
-              <p class="text-xs uppercase tracking-[0.3em] text-slate-300">Cards totales</p>
-              <p class="mt-2 text-3xl font-semibold text-white"><%= cards.length %></p>
-              <p class="text-xs text-slate-300">Mise à jour instantanée</p>
-            </div>
-            <div class="glass rounded-2xl p-4">
-              <p class="text-xs uppercase tracking-[0.3em] text-slate-300">Prochaine étape</p>
-              <p class="mt-2 text-xl font-semibold text-white">Publier</p>
-              <p class="text-xs text-slate-300">Partagez vos idées en équipe</p>
-            </div>
-            <div class="glass rounded-2xl p-4">
-              <p class="text-xs uppercase tracking-[0.3em] text-slate-300">Focus</p>
-              <p class="mt-2 text-xl font-semibold text-white">Explorer</p>
-              <p class="text-xs text-slate-300">Inspirez vos prochaines cards</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section>
-      <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-        <div>
-          <p class="text-xs uppercase tracking-[0.4em] text-sky-200">Vos cards</p>
-          <h2 class="text-2xl font-semibold">Idées récentes</h2>
-        </div>
-        <span class="badge-outline rounded-full px-4 py-1 text-xs text-slate-200">
-          <%= cards.length %> cards
-        </span>
-      </div>
-      <% if (cards.length === 0) { %>
-        <div class="mt-6 glass rounded-2xl p-6 text-sm text-slate-300">
-          Aucune card pour le moment. Ajoutez-en une !
-        </div>
-      <% } else { %>
-        <div class="card-grid mt-6">
-          <% cards.forEach((card) => { %>
-            <div class="panel rounded-3xl p-6 soft-shadow">
-              <h3 class="text-lg font-semibold text-white"><%= card.title %></h3>
-              <% if (card.category_name) { %>
-                <span class="mt-3 inline-flex w-fit rounded-full border border-slate-700 px-3 py-1 text-xs text-slate-200">
-                  <%= card.category_name %>
-                </span>
-              <% } %>
-              <p class="mt-3 text-sm text-slate-300"><%= card.content %></p>
-              <p class="mt-6 text-xs text-slate-400">
-                Créé le <%= new Date(card.created_at).toLocaleString('fr-FR') %>
-              </p>
-              <div class="mt-4 flex flex-wrap gap-2">
-                <button
-                  class="rounded-full border border-slate-700 px-3 py-1 text-xs text-slate-200 hover:border-slate-500"
-                  data-dialog="edit-card-<%= card.id %>"
-                >
-                  Modifier
-                </button>
-              </div>
-            </div>
-          <% }) %>
-        </div>
-      <% } %>
-    </section>
-
-    <section>
-      <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+  <main class="w-full px-6 lg:px-10 py-10 space-y-10">
+    <section class="panel rounded-3xl p-8 soft-shadow">
+      <div class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
         <div>
           <p class="text-xs uppercase tracking-[0.4em] text-emerald-200">Vos favoris</p>
-          <h2 class="text-2xl font-semibold">Ressources enregistrées</h2>
+          <h2 class="text-3xl font-semibold">Ressources enregistrées</h2>
+          <p class="mt-2 text-sm text-slate-300">
+            Gardez vos liens utiles sous la main, classés par catégorie.
+          </p>
         </div>
         <span class="badge-outline rounded-full px-4 py-1 text-xs text-slate-200">
           <%= favorites.length %> favoris
@@ -145,13 +60,25 @@
           Aucun favori pour le moment. Ajoutez votre premier lien !
         </div>
       <% } else { %>
-        <div class="card-grid mt-6">
+        <div class="card-grid mt-8">
           <% favorites.forEach((favorite) => { %>
             <div class="panel rounded-3xl p-6 soft-shadow">
               <div class="flex items-start justify-between gap-4">
-                <div>
-                  <h3 class="text-lg font-semibold text-white"><%= favorite.title %></h3>
-                  <p class="mt-2 text-sm text-slate-300"><%= favorite.url %></p>
+                <div class="flex items-start gap-3">
+                  <% const domain = getDomain(favorite.url); %>
+                  <% if (domain) { %>
+                    <img
+                      src="https://www.google.com/s2/favicons?domain=<%= domain %>&sz=64"
+                      alt=""
+                      class="h-10 w-10 rounded-full bg-slate-900/70 p-2"
+                    />
+                  <% } else { %>
+                    <div class="h-10 w-10 rounded-full bg-slate-900/70 p-2 text-xs text-slate-300">?</div>
+                  <% } %>
+                  <div>
+                    <h3 class="text-lg font-semibold text-white"><%= favorite.title %></h3>
+                    <p class="mt-1 text-sm text-slate-300 break-all"><%= favorite.url %></p>
+                  </div>
                 </div>
                 <a
                   class="rounded-full border border-slate-700 px-3 py-1 text-xs text-slate-200 hover:border-slate-500"
@@ -163,7 +90,7 @@
                 </a>
               </div>
               <% if (favorite.category_name) { %>
-                <span class="mt-3 inline-flex w-fit rounded-full border border-slate-700 px-3 py-1 text-xs text-slate-200">
+                <span class="mt-4 inline-flex w-fit rounded-full border border-slate-700 px-3 py-1 text-xs text-slate-200">
                   <%= favorite.category_name %>
                 </span>
               <% } %>
@@ -188,64 +115,6 @@
     </section>
   </main>
 </div>
-
-<dialog id="create-card-modal" class="backdrop:bg-slate-900/70">
-  <div class="panel w-full max-w-2xl rounded-3xl p-8 text-slate-100">
-    <div class="flex items-center justify-between">
-      <h2 class="text-2xl font-semibold">Nouvelle card</h2>
-      <button class="text-slate-300 hover:text-white" data-close>✕</button>
-    </div>
-    <form method="post" action="/cards" class="mt-6 space-y-4">
-      <label class="block text-sm">
-        <span class="text-slate-300">Titre</span>
-        <input
-          type="text"
-          name="title"
-          class="mt-2 w-full rounded-2xl border border-slate-700 bg-slate-900/70 px-4 py-3 text-sm text-slate-100 placeholder:text-slate-500 focus:border-sky-400 focus:outline-none"
-          placeholder="Ex: Nouvelle idée"
-          required
-        />
-      </label>
-      <label class="block text-sm">
-        <span class="text-slate-300">Catégorie</span>
-        <select
-          name="categoryId"
-          class="mt-2 w-full rounded-2xl border border-slate-700 bg-slate-900/70 px-4 py-3 text-sm text-slate-100 focus:border-sky-400 focus:outline-none"
-        >
-          <option value="">Sans catégorie</option>
-          <% categories.forEach((category) => { %>
-            <option value="<%= category.id %>"><%= category.name %></option>
-          <% }) %>
-        </select>
-      </label>
-      <label class="block text-sm">
-        <span class="text-slate-300">Contenu</span>
-        <textarea
-          name="content"
-          rows="4"
-          class="mt-2 w-full rounded-2xl border border-slate-700 bg-slate-900/70 px-4 py-3 text-sm text-slate-100 placeholder:text-slate-500 focus:border-sky-400 focus:outline-none"
-          placeholder="Décrivez rapidement votre card."
-          required
-        ></textarea>
-      </label>
-      <div class="flex flex-wrap justify-end gap-3">
-        <button
-          type="button"
-          class="rounded-full border border-slate-700 px-4 py-2 text-sm text-slate-200 hover:border-slate-500"
-          data-close
-        >
-          Annuler
-        </button>
-        <button
-          class="rounded-full bg-sky-500 px-4 py-2 text-sm font-semibold text-white hover:bg-sky-400"
-          type="submit"
-        >
-          Ajouter
-        </button>
-      </div>
-    </form>
-  </div>
-</dialog>
 
 <dialog id="create-category-modal" class="backdrop:bg-slate-900/70">
   <div class="panel w-full max-w-xl rounded-3xl p-8 text-slate-100">
@@ -349,67 +218,6 @@
     </form>
   </div>
 </dialog>
-
-<% cards.forEach((card) => { %>
-  <dialog id="edit-card-<%= card.id %>" class="backdrop:bg-slate-900/70">
-    <div class="panel w-full max-w-2xl rounded-3xl p-8 text-slate-100">
-      <div class="flex items-center justify-between">
-        <h2 class="text-2xl font-semibold">Modifier la card</h2>
-        <button class="text-slate-300 hover:text-white" data-close>✕</button>
-      </div>
-      <form method="post" action="/cards/<%= card.id %>" class="mt-6 space-y-4">
-        <label class="block text-sm">
-          <span class="text-slate-300">Titre</span>
-          <input
-            type="text"
-            name="title"
-            value="<%= card.title %>"
-            class="mt-2 w-full rounded-2xl border border-slate-700 bg-slate-900/70 px-4 py-3 text-sm text-slate-100 focus:border-sky-400 focus:outline-none"
-            required
-          />
-        </label>
-        <label class="block text-sm">
-          <span class="text-slate-300">Catégorie</span>
-          <select
-            name="categoryId"
-            class="mt-2 w-full rounded-2xl border border-slate-700 bg-slate-900/70 px-4 py-3 text-sm text-slate-100 focus:border-sky-400 focus:outline-none"
-          >
-            <option value="">Sans catégorie</option>
-            <% categories.forEach((category) => { %>
-              <option value="<%= category.id %>" <%= category.id === card.category_id ? "selected" : "" %>>
-                <%= category.name %>
-              </option>
-            <% }) %>
-          </select>
-        </label>
-        <label class="block text-sm">
-          <span class="text-slate-300">Contenu</span>
-          <textarea
-            name="content"
-            rows="4"
-            class="mt-2 w-full rounded-2xl border border-slate-700 bg-slate-900/70 px-4 py-3 text-sm text-slate-100 focus:border-sky-400 focus:outline-none"
-            required
-          ><%= card.content %></textarea>
-        </label>
-        <div class="flex flex-wrap justify-end gap-3">
-          <button
-            type="button"
-            class="rounded-full border border-slate-700 px-4 py-2 text-sm text-slate-200 hover:border-slate-500"
-            data-close
-          >
-            Annuler
-          </button>
-          <button
-            class="rounded-full bg-sky-500 px-4 py-2 text-sm font-semibold text-white hover:bg-sky-400"
-            type="submit"
-          >
-            Enregistrer
-          </button>
-        </div>
-      </form>
-    </div>
-  </dialog>
-<% }) %>
 
 <% favorites.forEach((favorite) => { %>
   <dialog id="edit-favorite-<%= favorite.id %>" class="backdrop:bg-slate-900/70">

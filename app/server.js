@@ -150,15 +150,6 @@ app.post("/logout", (req, res) => {
 
 app.get("/dashboard", requireAuth, async (req, res) => {
   const pool = getPool();
-  const [cards] = await pool.query(
-    `SELECT cards.id, cards.title, cards.content, cards.created_at, categories.id AS category_id,
-      categories.name AS category_name
-     FROM cards
-     LEFT JOIN categories ON cards.category_id = categories.id
-     WHERE cards.user_id = ?
-     ORDER BY cards.created_at DESC`,
-    [req.session.userId]
-  );
   const [categories] = await pool.query(
     "SELECT id, name FROM categories WHERE user_id = ? ORDER BY name ASC",
     [req.session.userId]
@@ -172,7 +163,7 @@ app.get("/dashboard", requireAuth, async (req, res) => {
      ORDER BY favorites.created_at DESC`,
     [req.session.userId]
   );
-  res.render("dashboard", { cards, categories, favorites });
+  res.render("dashboard", { categories, favorites });
 });
 
 app.post("/cards", requireAuth, async (req, res) => {
