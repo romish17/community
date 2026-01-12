@@ -150,6 +150,15 @@ app.post("/logout", (req, res) => {
 
 app.get("/dashboard", requireAuth, async (req, res) => {
   const pool = getPool();
+  const [cards] = await pool.query(
+    `SELECT cards.id, cards.title, cards.content, cards.created_at, categories.id AS category_id,
+      categories.name AS category_name
+     FROM cards
+     LEFT JOIN categories ON cards.category_id = categories.id
+     WHERE cards.user_id = ?
+     ORDER BY cards.created_at DESC`,
+    [req.session.userId]
+  );
   const [categories] = await pool.query(
     "SELECT id, name FROM categories WHERE user_id = ? ORDER BY name ASC",
     [req.session.userId]
@@ -163,7 +172,33 @@ app.get("/dashboard", requireAuth, async (req, res) => {
      ORDER BY favorites.created_at DESC`,
     [req.session.userId]
   );
-  res.render("dashboard", { categories, favorites });
+  res.render("dashboard", { cards, categories, favorites });
+});
+
+app.get("/admin", requireAuth, async (req, res) => {
+  const pool = getPool();
+  const [categories] = await pool.query(
+    "SELECT id, name, created_at FROM categories WHERE user_id = ? ORDER BY name ASC",
+    [req.session.userId]
+  );
+  const [favorites] = await pool.query(
+    `SELECT favorites.id, favorites.title, favorites.url, favorites.description, favorites.created_at,
+      categories.name AS category_name
+     FROM favorites
+     LEFT JOIN categories ON favorites.category_id = categories.id
+     WHERE favorites.user_id = ?
+     ORDER BY favorites.created_at DESC`,
+    [req.session.userId]
+  );
+  const [cards] = await pool.query(
+    `SELECT cards.id, cards.title, cards.content, cards.created_at, categories.name AS category_name
+     FROM cards
+     LEFT JOIN categories ON cards.category_id = categories.id
+     WHERE cards.user_id = ?
+     ORDER BY cards.created_at DESC`,
+    [req.session.userId]
+  );
+  res.render("admin", { categories, favorites, cards });
 });
 
 app.post("/cards", requireAuth, async (req, res) => {

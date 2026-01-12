@@ -1,5 +1,12 @@
 <%- include('partials/head', { title: 'Dashboard' }) %>
 <% const getDomain = (url) => { try { return new URL(url).hostname; } catch { return ""; } }; %>
+<%
+  const favoritesByCategory = categories.reduce((acc, category) => {
+    acc[category.id] = favorites.filter((favorite) => favorite.category_id === category.id);
+    return acc;
+  }, {});
+  const uncategorizedFavorites = favorites.filter((favorite) => !favorite.category_id);
+%>
 <div class="min-h-screen">
   <header class="sticky top-0 z-10 border-b border-slate-800/60 bg-slate-950/80 backdrop-blur">
     <div class="w-full px-6 lg:px-10 py-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -29,6 +36,12 @@
         <button class="rounded-full border border-slate-700 px-4 py-2 text-sm text-slate-200 hover:border-slate-500">
           Notifications
         </button>
+        <a
+          class="rounded-full border border-slate-700 px-4 py-2 text-sm text-slate-200 hover:border-slate-500"
+          href="/admin"
+        >
+          Admin
+        </a>
         <form method="post" action="/logout">
           <button
             class="rounded-full bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-900 hover:bg-white"
@@ -42,7 +55,7 @@
   </header>
 
   <main class="w-full px-6 lg:px-10 py-10 space-y-10">
-    <section class="panel rounded-3xl p-8 soft-shadow">
+    <section class="panel rounded-3xl p-8 soft-shadow space-y-8">
       <div class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
         <div>
           <p class="text-xs uppercase tracking-[0.4em] text-emerald-200">Vos favoris</p>
@@ -56,58 +69,156 @@
         </span>
       </div>
       <% if (favorites.length === 0) { %>
-        <div class="mt-6 glass rounded-2xl p-6 text-sm text-slate-300">
+        <div class="glass rounded-2xl p-6 text-sm text-slate-300">
           Aucun favori pour le moment. Ajoutez votre premier lien !
         </div>
       <% } else { %>
-        <div class="card-grid mt-8">
-          <% favorites.forEach((favorite) => { %>
-            <div class="panel rounded-3xl p-6 soft-shadow">
-              <div class="flex items-start justify-between gap-4">
-                <div class="flex items-start gap-3">
-                  <% const domain = getDomain(favorite.url); %>
-                  <% if (domain) { %>
-                    <img
-                      src="https://www.google.com/s2/favicons?domain=<%= domain %>&sz=64"
-                      alt=""
-                      class="h-10 w-10 rounded-full bg-slate-900/70 p-2"
-                    />
-                  <% } else { %>
-                    <div class="h-10 w-10 rounded-full bg-slate-900/70 p-2 text-xs text-slate-300">?</div>
+        <% categories.forEach((category) => { %>
+          <% if (favoritesByCategory[category.id] && favoritesByCategory[category.id].length > 0) { %>
+            <div class="space-y-4">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-xs uppercase tracking-[0.3em] text-slate-400">Catégorie</p>
+                  <h3 class="text-xl font-semibold text-white"><%= category.name %></h3>
+                </div>
+                <span class="badge-outline rounded-full px-3 py-1 text-xs text-slate-200">
+                  <%= favoritesByCategory[category.id].length %>
+                </span>
+              </div>
+              <div class="card-grid">
+                <% favoritesByCategory[category.id].forEach((favorite) => { %>
+                  <div class="panel rounded-3xl p-5 soft-shadow">
+                    <div class="flex items-start justify-between gap-4">
+                      <div class="flex items-start gap-3">
+                        <% const domain = getDomain(favorite.url); %>
+                        <% if (domain) { %>
+                          <img
+                            src="https://www.google.com/s2/favicons?domain=<%= domain %>&sz=64"
+                            alt=""
+                            class="h-9 w-9 rounded-full bg-slate-900/70 p-2"
+                          />
+                        <% } else { %>
+                          <div class="h-9 w-9 rounded-full bg-slate-900/70 p-2 text-xs text-slate-300">?</div>
+                        <% } %>
+                        <div>
+                          <h4 class="text-base font-semibold text-white"><%= favorite.title %></h4>
+                          <p class="mt-1 text-xs text-slate-300 break-all"><%= favorite.url %></p>
+                        </div>
+                      </div>
+                      <a
+                        class="rounded-full border border-slate-700 px-3 py-1 text-xs text-slate-200 hover:border-slate-500"
+                        href="<%= favorite.url %>"
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        Ouvrir
+                      </a>
+                    </div>
+                    <% if (favorite.description) { %>
+                      <p class="mt-3 text-xs text-slate-300"><%= favorite.description %></p>
+                    <% } %>
+                    <div class="mt-4 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-400">
+                      <span>Ajouté le <%= new Date(favorite.created_at).toLocaleString('fr-FR') %></span>
+                      <button
+                        class="rounded-full border border-slate-700 px-3 py-1 text-xs text-slate-200 hover:border-slate-500"
+                        data-dialog="edit-favorite-<%= favorite.id %>"
+                      >
+                        Modifier
+                      </button>
+                    </div>
+                  </div>
+                <% }) %>
+              </div>
+            </div>
+          <% } %>
+        <% }) %>
+        <% if (uncategorizedFavorites.length > 0) { %>
+          <div class="space-y-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-xs uppercase tracking-[0.3em] text-slate-400">Catégorie</p>
+                <h3 class="text-xl font-semibold text-white">Sans catégorie</h3>
+              </div>
+              <span class="badge-outline rounded-full px-3 py-1 text-xs text-slate-200">
+                <%= uncategorizedFavorites.length %>
+              </span>
+            </div>
+            <div class="card-grid">
+              <% uncategorizedFavorites.forEach((favorite) => { %>
+                <div class="panel rounded-3xl p-5 soft-shadow">
+                  <div class="flex items-start justify-between gap-4">
+                    <div class="flex items-start gap-3">
+                      <% const domain = getDomain(favorite.url); %>
+                      <% if (domain) { %>
+                        <img
+                          src="https://www.google.com/s2/favicons?domain=<%= domain %>&sz=64"
+                          alt=""
+                          class="h-9 w-9 rounded-full bg-slate-900/70 p-2"
+                        />
+                      <% } else { %>
+                        <div class="h-9 w-9 rounded-full bg-slate-900/70 p-2 text-xs text-slate-300">?</div>
+                      <% } %>
+                      <div>
+                        <h4 class="text-base font-semibold text-white"><%= favorite.title %></h4>
+                        <p class="mt-1 text-xs text-slate-300 break-all"><%= favorite.url %></p>
+                      </div>
+                    </div>
+                    <a
+                      class="rounded-full border border-slate-700 px-3 py-1 text-xs text-slate-200 hover:border-slate-500"
+                      href="<%= favorite.url %>"
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      Ouvrir
+                    </a>
+                  </div>
+                  <% if (favorite.description) { %>
+                    <p class="mt-3 text-xs text-slate-300"><%= favorite.description %></p>
                   <% } %>
-                  <div>
-                    <h3 class="text-lg font-semibold text-white"><%= favorite.title %></h3>
-                    <p class="mt-1 text-sm text-slate-300 break-all"><%= favorite.url %></p>
+                  <div class="mt-4 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-400">
+                    <span>Ajouté le <%= new Date(favorite.created_at).toLocaleString('fr-FR') %></span>
+                    <button
+                      class="rounded-full border border-slate-700 px-3 py-1 text-xs text-slate-200 hover:border-slate-500"
+                      data-dialog="edit-favorite-<%= favorite.id %>"
+                    >
+                      Modifier
+                    </button>
                   </div>
                 </div>
-                <a
-                  class="rounded-full border border-slate-700 px-3 py-1 text-xs text-slate-200 hover:border-slate-500"
-                  href="<%= favorite.url %>"
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  Ouvrir
-                </a>
+              <% }) %>
+            </div>
+          </div>
+        <% } %>
+      <% } %>
+    </section>
+
+    <section class="panel rounded-3xl p-6 soft-shadow">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-xs uppercase tracking-[0.4em] text-sky-200">Cards</p>
+          <h3 class="text-lg font-semibold">Notes rapides</h3>
+        </div>
+        <span class="badge-outline rounded-full px-3 py-1 text-xs text-slate-200">
+          <%= cards.length %> cards
+        </span>
+      </div>
+      <% if (cards.length === 0) { %>
+        <div class="mt-4 glass rounded-2xl p-4 text-sm text-slate-300">
+          Aucune card enregistrée.
+        </div>
+      <% } else { %>
+        <div class="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+          <% cards.forEach((card) => { %>
+            <div class="glass rounded-2xl p-4">
+              <div class="flex items-center justify-between gap-2">
+                <h4 class="text-sm font-semibold text-white"><%= card.title %></h4>
+                <% if (card.category_name) { %>
+                  <span class="rounded-full border border-slate-700 px-2 py-0.5 text-[10px] text-slate-200">
+                    <%= card.category_name %>
+                  </span>
+                <% } %>
               </div>
-              <% if (favorite.category_name) { %>
-                <span class="mt-4 inline-flex w-fit rounded-full border border-slate-700 px-3 py-1 text-xs text-slate-200">
-                  <%= favorite.category_name %>
-                </span>
-              <% } %>
-              <% if (favorite.description) { %>
-                <p class="mt-3 text-sm text-slate-300"><%= favorite.description %></p>
-              <% } %>
-              <p class="mt-6 text-xs text-slate-400">
-                Ajouté le <%= new Date(favorite.created_at).toLocaleString('fr-FR') %>
-              </p>
-              <div class="mt-4 flex flex-wrap gap-2">
-                <button
-                  class="rounded-full border border-slate-700 px-3 py-1 text-xs text-slate-200 hover:border-slate-500"
-                  data-dialog="edit-favorite-<%= favorite.id %>"
-                >
-                  Modifier
-                </button>
-              </div>
+              <p class="mt-2 text-xs text-slate-300"><%= card.content %></p>
             </div>
           <% }) %>
         </div>
